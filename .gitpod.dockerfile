@@ -4,5 +4,5 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
  && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
  && sudo apt-get update \
  && sudo apt-get install -y google-cloud-sdk \
- && sudo python3 -m pip install requests \
+ && sudo pip install requests \
  && sudo rm -rf /var/lib/apt/lists/*
