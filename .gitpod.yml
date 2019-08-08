@@ -1,7 +1,2 @@
 image:
   file: .gitpod.dockerfile
-
-tasks:
-  - init: python3 -m virtualenv env &&
-  source env/bin/activate &&
-  python install -r requirements.txt
