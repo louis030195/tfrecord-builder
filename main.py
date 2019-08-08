@@ -4,7 +4,6 @@ import logging
 import os
 import re
 import time
-from PIL import Image
 import requests
 from io import BytesIO
 import numpy as np
@@ -73,7 +72,7 @@ def pubsub_push():
     # If it's a video
     if payload[-4:] == '.mp4' or payload[-4:] == '.avi':
         # Call Frame Extractor
-        url = 'https://frame-extractor.{}.appspot.com/pubsub/push?token={}'.format(os.environ['PROJECT_ID'], os.environ['PUBSUB_VERIFICATION_TOKEN'])
+        url = 'https://frame-extractor-dot-{}.appspot.com/pubsub/push?token={}'.format(os.environ['PROJECT_ID'], os.environ['PUBSUB_VERIFICATION_TOKEN'])
 
         # Request with payload (video url)
         response = requests.post(
