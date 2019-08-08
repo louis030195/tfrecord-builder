@@ -29,7 +29,7 @@ app = Flask(__name__)
 app.config['PUBSUB_VERIFICATION_TOKEN'] = \
     os.environ['PUBSUB_VERIFICATION_TOKEN']
 app.config['PUBSUB_TOPIC'] = os.environ['PUBSUB_TOPIC']
-app.config['PROJECT'] = os.environ['GOOGLE_CLOUD_PROJECT']
+app.config['PROJECT'] = os.environ['PROJECT_ID']
 
 
 # Global list to storage messages received by this instance.
@@ -73,7 +73,7 @@ def pubsub_push():
     # If it's a video
     if payload[-4:] == '.mp4' or payload[-4:] == '.avi':
         # Call Frame Extractor
-        url = 'https://{}.appspot.com/pubsub/fe?token={}'.format(os.environ['PROJECT_ID'], os.environ['PUBSUB_VERIFICATION_TOKEN'])
+        url = 'https://frame-extractor.{}.appspot.com/pubsub/push?token={}'.format(os.environ['PROJECT_ID'], os.environ['PUBSUB_VERIFICATION_TOKEN'])
 
         # Request with payload (video url)
         response = requests.post(
