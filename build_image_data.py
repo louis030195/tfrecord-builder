@@ -65,32 +65,15 @@ import tensorflow as tf
 # Imports the Google Cloud client library
 from google.cloud import storage
 
-tf.app.flags.DEFINE_string('train_directory', '/tmp/',
-                           'Training data directory')
-tf.app.flags.DEFINE_string('validation_directory', '/tmp/',
-                           'Validation data directory')
-tf.app.flags.DEFINE_string('output_directory', '/tmp/',
-                           'Output data directory')
-
-tf.app.flags.DEFINE_integer('train_shards', 2,
-                            'Number of shards in training TFRecord files.')
-tf.app.flags.DEFINE_integer('validation_shards', 2,
-                            'Number of shards in validation TFRecord files.')
-
-tf.app.flags.DEFINE_integer('num_threads', 2,
-                            'Number of threads to preprocess the images.')
-
-# The labels file contains a list of valid labels are held in this file.
-# Assumes that the file contains entries as such:
-#   dog
-#   cat
-#   flower
-# where each line corresponds to a label. We map each label contained in
-# the file to an integer corresponding to the line number starting from 0.
-tf.app.flags.DEFINE_string('labels_file', '', 'Labels file')
-
-
-FLAGS = tf.app.flags.FLAGS
+# TODO: clean this dirty code
+FLAGS = {
+  'train_directory': '/tmp/',
+  'validation_directory': '/tmp/',
+  'output_directory': '/tmp/',
+  'train_shards': 2,
+  'validation_shards': 2,
+  'num_threads': 1
+}
 
 
 def _int64_feature(value):
@@ -245,7 +228,7 @@ def _process_image_files_batch(coder, thread_index, ranges, name, filenames,
     # Generate a sharded version of the file name, e.g. 'train-00002-of-00010'
     shard = thread_index * num_shards_per_batch + s
     output_filename = '%s-%.5d-of-%.5d' % (name, shard, num_shards)
-    output_file = os.path.join(FLAGS.output_directory, output_filename)
+    output_file = os.path.join(FLAGS['output_directory'], output_filename)
     writer = tf.io.TFRecordWriter(output_file)
 
     # Upload to GCS
@@ -301,18 +284,17 @@ def _process_image_files(name, filenames, texts, labels, num_shards):
     labels: list of integer; each integer identifies the ground truth
     num_shards: integer number of shards for this data set.
   """
-  FLAGS.num_threads = 1
   assert len(filenames) == len(texts)
   assert len(filenames) == len(labels)
 
   # Break all images into batches with a [ranges[i][0], ranges[i][1]].
-  spacing = np.linspace(0, len(filenames), FLAGS.num_threads + 1).astype(np.int)
+  spacing = np.linspace(0, len(filenames), FLAGS['num_threads'] + 1).astype(np.int)
   ranges = []
   for i in range(len(spacing) - 1):
     ranges.append([spacing[i], spacing[i + 1]])
 
   # Launch a thread for each batch.
-  print('Launching %d threads for spacings: %s' % (FLAGS.num_threads, ranges))
+  print('Launching %d threads for spacings: %s' % (FLAGS['num_threads'], ranges))
   sys.stdout.flush()
 
   # Create a mechanism for monitoring when all threads are finished.
