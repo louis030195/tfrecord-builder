@@ -4,8 +4,11 @@ import logging
 import os
 import re
 import time
-#import requests
-
+from PIL import Image
+import requests
+from io import BytesIO
+import numpy as np
+import urllib.request 
 from flask import current_app, Flask, render_template, request
 
 # Imports the Google Cloud client libraries
@@ -15,7 +18,7 @@ from google.cloud import datastore
 from google.cloud import pubsub_v1
 
 # Utils
-from .utils import frames_to_tfrecord
+from build_image_data import _process_image_files
 
 
 app = Flask(__name__)
@@ -62,13 +65,13 @@ def pubsub_push():
         return 'Invalid request', 400
 
     envelope = json.loads(request.data.decode('utf-8'))
-    payload = base64.b64decode(envelope['message']['data'])
-    print(payload)
+    payload = base64.b64decode(envelope['message']['data']).decode('utf-8')
+
     if len(payload) < 5:
         return 'Incorrect URL', 500
 
     # If it's a video
-    if payload[4:] == '.mp4' or payload[4:] == '.avi':
+    if payload[-4:] == '.mp4' or payload[-4:] == '.avi':
         # Call Frame Extractor
         url = 'https://wildlife-247309.appspot.com/pubsub/fe?token=' + os.environ['PUBSUB_VERIFICATION_TOKEN']
 
@@ -85,10 +88,10 @@ def pubsub_push():
             })
         )
         """
-        return #r.text, 200
+        return 'Video not implemented', 500#r.text, 200
 
     # If it's not a video and not an image
-    if payload[4:] != '.jpg' and payload[4:] != '.png' and payload[5:] != '.jpeg':
+    if payload[-4:] != '.jpg' and payload[-4:] != '.png' and payload[-5:] != '.jpeg':
         return 'Unhandled file type {}'.format(payload), 500
 
     treshold = 3
@@ -97,7 +100,6 @@ def pubsub_push():
     query_frame = client.query(kind='Frame')
     query_frame.add_filter('predictions', '=', None)
     frames_to_process = list(query_frame.fetch())
-
 
     # If there are too few frames to process, return
     if len(frames_to_process) < treshold:
@@ -123,9 +125,20 @@ def pubsub_push():
     # Get last id + 1
     autoincrement = max(blobs if blobs else [0]) + 1
 
-    # Write a tfrecord with last id + 1 (autoincrement ...)
-    frames_to_tfrecord(frames_to_process, bucket_name, autoincrement)
+    images = []
+    imageUrls = []
+    for f in frames_to_process:
+      path = os.path.join('/tmp', f['imageUrl'].split('/')[-1])
 
+      # Download the image locally
+      urllib.request.urlretrieve(f['imageUrl'], path)
+
+      # Store the absolute path in a list
+      imageUrls.append(path)
+
+    # Write a tfrecord with last id + 1 (autoincrement ...)
+    # No need labels
+    _process_image_files(autoincrement, imageUrls, [''] * len(imageUrls), [0] * len(imageUrls), 5)
 
     MESSAGES.append(payload)
 

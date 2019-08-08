@@ -22,18 +22,22 @@ Before you can run or deploy the sample, you will need to do the following:
 
 Install dependencies, preferably with a virtualenv:
 
-    $ virtualenv env
-    $ source env/bin/activate
-    $ pip install -r requirements.txt
+    virtualenv env
+    source env/bin/activate
+    pip install -r requirements.txt
 
 Then set environment variables before starting your application:
 
-    $ export PUBSUB_VERIFICATION_TOKEN=[your-verification-token]
-    $ export PUBSUB_TOPIC=[your-topic]
-    $ python main.py
+    export GOOGLE_APPLICATION_CREDENTIALS=[path-to-json-cred] # This one is usually just to remove warnings
+    export PUBSUB_VERIFICATION_TOKEN=[your-verification-token]
+    export PUBSUB_TOPIC=[your-topic]
+    export BUCKET_NAME=[your-bucket]
+    python main.py
 
 ### Simulating push notifications
+Assuming you have Frame entities in Datastore with imageUrl property pointing to their storage (on GCS ?)
 
+    export PUBSUB_VERIFICATION_TOKEN=[your-verification-token]
     python test/call.py
 
 ## Running on App Engine
