@@ -13,4 +13,5 @@ env_variables:
     # application. It can be any sufficiently random string.
     PUBSUB_VERIFICATION_TOKEN: ok123456
     BUCKET_NAME: bucket03y
+    PROJECT_ID: wildlife-247309
 # [END gae_flex_pubsub_env]

@@ -3,7 +3,8 @@ import json
 import os
 import requests
 
-url = 'http://localhost:8080/pubsub/tb?token=' + os.environ['PUBSUB_VERIFICATION_TOKEN']
+# Local debugging
+url = 'http://localhost:8080/pubsub/push?token=' + os.environ['PUBSUB_VERIFICATION_TOKEN']
 
 r = requests.post(
     url,

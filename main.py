@@ -8,7 +8,7 @@ from PIL import Image
 import requests
 from io import BytesIO
 import numpy as np
-import urllib.request 
+import urllib.request
 from flask import current_app, Flask, render_template, request
 
 # Imports the Google Cloud client libraries
@@ -37,7 +37,7 @@ MESSAGES = []
 
 
 # [START gae_flex_pubsub_index]
-@app.route('/tb', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
         return render_template('index.html', messages=MESSAGES)
@@ -58,7 +58,7 @@ def index():
 
 
 # [START gae_flex_pubsub_push]
-@app.route('/pubsub/tb', methods=['POST'])
+@app.route('/pubsub/push', methods=['POST'])
 def pubsub_push():
     if (request.args.get('token', '') !=
             current_app.config['PUBSUB_VERIFICATION_TOKEN']):
@@ -73,11 +73,10 @@ def pubsub_push():
     # If it's a video
     if payload[-4:] == '.mp4' or payload[-4:] == '.avi':
         # Call Frame Extractor
-        url = 'https://wildlife-247309.appspot.com/pubsub/fe?token=' + os.environ['PUBSUB_VERIFICATION_TOKEN']
+        url = 'https://{}.appspot.com/pubsub/fe?token={}'.format(os.environ['PROJECT_ID'], os.environ['PUBSUB_VERIFICATION_TOKEN'])
 
         # Request with payload (video url)
-        """
-        r = requests.post(
+        response = requests.post(
             url,
             data=json.dumps({
                 "message": {
@@ -87,8 +86,7 @@ def pubsub_push():
                 }
             })
         )
-        """
-        return 'Video not implemented', 500#r.text, 200
+        return response.text, 200 # 'Video not implemented', 500
 
     # If it's not a video and not an image
     if payload[-4:] != '.jpg' and payload[-4:] != '.png' and payload[-5:] != '.jpeg':
