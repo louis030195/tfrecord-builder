@@ -28,10 +28,11 @@ Install dependencies, preferably with a virtualenv:
 
 Then set environment variables before starting your application:
 
-    export GOOGLE_APPLICATION_CREDENTIALS=[path-to-json-cred] # This one is usually just to remove warnings
+    export GOOGLE_APPLICATION_CREDENTIALS=[path-to-json-cred]
     export PUBSUB_VERIFICATION_TOKEN=[your-verification-token]
     export PUBSUB_TOPIC=[your-topic]
     export BUCKET_NAME=[your-bucket]
+    export PROJECT_ID=[your-project-id]
     python main.py
 
 ### Simulating push notifications

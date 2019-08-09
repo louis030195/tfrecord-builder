@@ -14,4 +14,6 @@ env_variables:
     PUBSUB_VERIFICATION_TOKEN: ok123456
     BUCKET_NAME: bucket03y
     PROJECT_ID: wildlife-247309
+    # Example: 3 frames that need predictions ? treshold = 4 so no tfrecord built
+    TRESHOLD: 0
 # [END gae_flex_pubsub_env]

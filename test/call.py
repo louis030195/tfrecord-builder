@@ -6,7 +6,7 @@ import requests
 # Local debugging
 url = 'http://localhost:8080/pubsub/push?token=' + os.environ['PUBSUB_VERIFICATION_TOKEN']
 
-r = requests.post(
+response = requests.post(
     url,
     data=json.dumps({
         "message": {
@@ -18,4 +18,4 @@ r = requests.post(
     })
 )
 
-print(r.text)
+print(response.text, response.status_code)

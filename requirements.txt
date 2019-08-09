@@ -6,6 +6,6 @@ gunicorn==19.9.0
 google-cloud-datastore
 google-cloud-storage
 google-api-python-client
-numpy
+numpy<1.17 # To avoid gettting spammed warning https://github.com/tensorflow/tensorflow/issues/30427#issuecomment-515770145
 tensorflow
 requests

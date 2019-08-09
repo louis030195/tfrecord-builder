@@ -1,17 +1,13 @@
+
 import base64
 import json
 import logging
 import os
-import re
-import time
+import urllib.request # No conflict import ?
 import requests
-from io import BytesIO
-import numpy as np
-import urllib.request
 from flask import current_app, Flask, render_template, request
 
 # Imports the Google Cloud client libraries
-import googleapiclient.discovery
 from google.cloud import storage
 from google.cloud import datastore
 from google.cloud import pubsub_v1
@@ -91,7 +87,7 @@ def pubsub_push():
     if payload[-4:] != '.jpg' and payload[-4:] != '.png' and payload[-5:] != '.jpeg':
         return 'Unhandled file type {}'.format(payload), 500
 
-    treshold = 3
+    treshold = os.environ['TRESHOLD']
     client = datastore.Client()
     # Then get by key for this entity
     query_frame = client.query(kind='Frame')
@@ -100,7 +96,7 @@ def pubsub_push():
 
     # If there are too few frames to process, return
     if len(frames_to_process) < treshold:
-        return
+        return 'Not enough frames to build a tfrecord', 200
 
     print("Starting a job", len(frames_to_process), "images to process")
 
@@ -122,20 +118,22 @@ def pubsub_push():
     # Get last id + 1
     autoincrement = max(blobs if blobs else [0]) + 1
 
-    images = []
     imageUrls = []
     for f in frames_to_process:
-      path = os.path.join('/tmp', f['imageUrl'].split('/')[-1])
+        path = os.path.join('/tmp', f['imageUrl'].split('/')[-1])
 
-      # Download the image locally
-      urllib.request.urlretrieve(f['imageUrl'], path)
+        # Download the image locally
+        urllib.request.urlretrieve(f['imageUrl'], path)
 
-      # Store the absolute path in a list
-      imageUrls.append(path)
+        # Store the absolute path in a list
+        imageUrls.append(path)
 
     # Write a tfrecord with last id + 1 (autoincrement ...)
     # No need labels
-    _process_image_files(autoincrement, imageUrls, [''] * len(imageUrls), [0] * len(imageUrls), 5)
+    try:
+        _process_image_files(autoincrement, imageUrls, [''] * len(imageUrls), [0] * len(imageUrls), 5)
+    except:
+        return 'Failed to build tfrecord', 500
 
     MESSAGES.append(payload)
 

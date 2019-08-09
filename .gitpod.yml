@@ -3,4 +3,6 @@ image:
 
 # Do we need to do it in a virtualenv ?
 tasks:
-  - init: pip3 install -r requirements.txt
+  - init: virtualenv -p python3 env &&
+          source env/bin/activate &&
+          pip3 install -r requirements.txt
