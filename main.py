@@ -87,7 +87,7 @@ def pubsub_push():
     if payload[-4:] != '.jpg' and payload[-4:] != '.png' and payload[-5:] != '.jpeg':
         return 'Unhandled file type {}'.format(payload), 500
 
-    treshold = os.environ['TRESHOLD']
+    treshold = int(os.environ['TRESHOLD'])
     client = datastore.Client()
     # Then get by key for this entity
     query_frame = client.query(kind='Frame')
